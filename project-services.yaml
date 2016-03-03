@@ -1,6 +1,6 @@
 ---
 swagger: "2.0"
-info:
+info: 
   version: "v1"
   title: "ACM Project Service"
   description: "Service for accessing Projects and their contents (* indicates operation\
