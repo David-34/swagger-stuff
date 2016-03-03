@@ -1,0 +1,43 @@
+### Domains, a place to put your reuseable components
+
+### Examples...
+
+definitions:
+
+  djsPageMetadata:
+    required:
+      - "pageSize"
+      - "pageNumber"
+      - "returnedRecords"
+      - "totalRecords"
+    properties:
+      pageSize:
+        type: integer
+      pageNumber:
+        type: integer
+      returnedRecords:
+        type: integer
+      totalRecords:
+        type: integer
+
+# responses:
+  # GeneralError:
+  #   description: General Error
+  #   schema:
+  #     $ref: '#/definitions/ErrorModel'
+
+# parameters:
+  # skipParam:
+  #   name: "skip"
+  #   in: "query"
+  #   description: "number of items to skip"
+  #   type: "integer"
+
+# pathitems:
+  # EntityOperations:
+  #   get:
+  #     description: "Returns a pet based on ID"
+  #     summary: "Find pet by ID"
+  #     responses:
+  #       default:
+  #         $ref: '#/responses/GeneralError'
