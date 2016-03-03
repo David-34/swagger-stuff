@@ -1,0 +1,2351 @@
+---
+swagger: "2.0"
+info:
+  version: "v1"
+  title: "ACM Project Service"
+  description: "Service for accessing Projects and their contents (* indicates operation\
+    \ has been implemented)"
+schemes:
+- "https"
+basePath: "/project-services/v1"
+produces:
+- "application/json"
+paths:
+  /{community}/projects: 
+    get:
+      tags:
+        - Projects    
+      summary: "List or search for projects *"
+      description: "Returns a list of existing projects"
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "status"
+        in: "query"
+        required: false
+        type: "string"
+        description: "Filter projects by status (active/closed/all) - default = active"
+        default: "active"
+      - name: "page"
+        in: "query"
+        required: false
+        type: "number"
+        description: "Number of the results page to return - default = 1"
+        default: 1
+      - name: "size"
+        in: "query"
+        required: false
+        type: "number"
+        description: "Number of items per page - default = 10"
+        default: 10
+      - name: "order"
+        in: "query"
+        required: false
+        type: "string"
+        description: "Comma separated list of fields to order by. Append field name\
+          \ with \":desc\" to order that field descending."
+      - name: "query"
+        in: "query"
+        required: false
+        type: "string"
+        description: "Optional query to select a subset of objects to return. Objects\
+          \ will be returned if their name or description contains the specified string."
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/listProjectsResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+    post:
+      tags:
+        - Projects        
+      summary: "Create new project *"
+      description: "Creates a new project in the ACM repository and in the Designer\
+        \ repository. New projects are automatically assigned a status of 'created'."
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "newProject"
+        in: "body"
+        required: true
+        description: "Object containing details of the new project"
+        schema:
+          $ref: "#/definitions/projectCreate"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/newItemSuccessResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        409:
+          description: "Duplicate project name"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+  /{community}/projects/{projectId}:
+    get:
+      tags:
+        - Projects        
+      summary: "Get project details *"
+      description: "Returns the details of a specified project"
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "projectId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the project to retrieve"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/projectResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        404:
+          description: "Project not found"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+    put:
+      tags:
+        - Projects        
+      summary: "Update a project *"
+      description: "Updates properties of an existing project. The status, name, description,\
+        \ dueDate and referenceCode can be updated."
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "projectId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the project to be updated"
+      - name: "updatedProject"
+        in: "body"
+        required: true
+        description: "Project object containing one or more updated fields."
+        schema:
+          $ref: "#/definitions/projectUpdate"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/successResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        404:
+          description: "Project not found"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+    delete:
+      tags:
+        - Projects        
+      summary: "Delete a project *"
+      description: "Deletes a project from the ACM repository. It is intended for\
+        \ testing purposes only - the UI will be expected to close a project via the\
+        \ update operation (PUT) and will not delete the project."
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "projectId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the project to be deleted"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/successResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        404:
+          description: "Project not found"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+  /{community}/projects/{projectId}/assets:
+    get:
+      tags:
+        - Assets        
+      summary: "List or search for assets in project *"
+      description: "Returns a list of assets within the project."
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "projectId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the project whose assets should be returned"
+      - name: "type"
+        in: "query"
+        required: false
+        type: "string"
+        description: "Type of the assets to return (must be one of the values of the\
+          \ assetType enum) - default is all types"
+      - name: "page"
+        in: "query"
+        required: false
+        type: "number"
+        description: "Number of the results page to return - default = 1"
+        default: 1
+      - name: "size"
+        in: "query"
+        required: false
+        type: "number"
+        description: "Number of items per page - default = 10"
+        default: 10
+      - name: "order"
+        in: "query"
+        required: false
+        type: "string"
+        description: "Comma separated list of fields to order by. Append field name\
+          \ with \":desc\" to order that field descending."
+      - name: "query"
+        in: "query"
+        required: false
+        type: "string"
+        description: "Optional query to select a subset of objects to return. Objects\
+          \ will be returned if their name or description contains the specified string."
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/listProjectAssetsResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+    post:
+      tags:
+        - Assets            
+      summary: "Add new or existing asset to project *"
+      description: "Add an asset to a project. If an external asset ID is specified\
+        \ in the asset parameter (body), the corresponding Designer asset is added\
+        \ to the project. If the external asset ID is empty, a new asset is created\
+        \ in Designer and in the project."
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "projectId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the project whose assets should be returned"
+      - name: "asset"
+        in: "body"
+        description: "Object containing the asset information"
+        schema:
+          $ref: "#/definitions/projectAssetSend"
+      responses:
+        200:
+          description: "Success - returns the ID of the asset that was added to the\
+            \ project"
+          schema:
+            $ref: "#/definitions/newItemSuccessResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        409:
+          description: "Asset already exists in project"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+  /{community}/projects/{projectId}/assets/{assetId}:
+    get:
+      tags:
+        - Assets            
+      summary: "Get asset in project *"
+      description: "Returns details of a specific asset in a project"
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "projectId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the project whose asset is to be returned"
+      - name: "assetId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the asset for which the details will be returned"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/getProjectAssetResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        404:
+          description: "Asset not found"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+    delete:
+      tags:
+        - Assets            
+      summary: "Remove asset from project *"
+      description: "Removes an asset from a project. (Note - Not required for Phase\
+        \ 1 but useful for testing)"
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "projectId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the project whose asset is to be removed"
+      - name: "assetId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the asset to remove from the project"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/successResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        404:
+          description: "Asset not found"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+  /{community}/projects/{projectId}/available-assets:
+    get:
+      tags:
+        - Assets            
+      summary: "List or search for available assets by folder"
+      description: "Returns a list of assets that are available to be added to the\
+        \ project, based in Designer folder structure"
+      parameters:
+      - name: community
+        in: path
+        required: true
+        type: string
+        description: Name of the community
+      - name: projectId
+        in: path
+        required: true
+        type: string
+        description: ID of the project whose assets will be returned
+      - name: path
+        in: query
+        required: false
+        type: string
+        description: 'Path of the folder whose contents will be returned. The root folder is 
+          represented by an empty string. Sub-folders are separated from their parent by a
+          forward slash.'
+        default: (Root folder)
+      - name: type
+        in: query
+        required: false
+        type: string
+        description: 'Type of the assets to return (must be one of the values of the
+          assetType enum). Default is all types.'
+        default: "(all)"
+      - name: mode
+        in: query
+        required: false
+        type: string
+        description: 'Indicates whether empty folders should be returned. Value Must be ''all''
+          or ''populated''. Default is ''populated''. Note: In the initial implementation
+          only populated folders will be returned, regardless of the value specified for mode.'
+        default: populated
+      - name: filter
+        in: query
+        required: false
+        type: string
+        description: 'Specifies whether folders, assets or both should be returned. The value 
+          must be ''folders'', ''assets'' or ''all''. Default is ''all''.'
+        default: all
+      - name: depth
+        in: query
+        required: false
+        type: string
+        description: 'Indicates whether to return just the content of the folder specified
+          in the path parameter or the contents of that folder plus all of its descendants.
+          Value must be ''current'' or ''all''. Default is ''current''.'
+        default: current
+      - name: query
+        in: query
+        required: false
+        type: string
+        description: 'Optional query to select a subset of assets to return. Assets
+          will be returned if their name includes the search string. Note that the
+          folder path text is not searched, just the asset name. An assets will be returned if
+          it''s name contains the specified text - the name does not have to START with the text.'
+        default: (no query)
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/listAvailableAssetsResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"            
+  /{community}/projects/{projectId}/workflows:
+    get:
+      tags:
+        - Workflows            
+      summary: "List or search for workflow definitions *"
+      description: "Returns a list of workflow definitions in a project"
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "projectId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the project whose workflow definitions should be returned"
+      - name: "page"
+        in: "query"
+        required: false
+        type: "number"
+        description: "Number of the results page to return - default = 1"
+        default: 1
+      - name: "size"
+        in: "query"
+        required: false
+        type: "number"
+        description: "Number of items per page - default = 10"
+        default: 10
+      - name: "order"
+        in: "query"
+        required: false
+        type: "string"
+        description: "Comma separated list of fields to order by. Append field name\
+          \ with \":desc\" to order that field descending."
+      - name: "query"
+        in: "query"
+        required: false
+        type: "string"
+        description: "Optional query to select a subset of objects to return. Objects\
+          \ will be returned if their name or description contains the specified string."
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/listWorkflowsResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+    post:
+      tags:
+        - Workflows                
+      summary: "Add workflow definition to project *"
+      description: "Adds a new workflow definition to a project"
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "projectId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the project whose workflow definitions should be returned"
+      - name: "workflowDefinition"
+        in: "body"
+        schema:
+          $ref: "#/definitions/workflowDefinitionSend"
+        description: "Workflow definition to be added to the project"
+      responses:
+        200:
+          description: "Returns the ID of the newly created workflow definition"
+          schema:
+            $ref: "#/definitions/newItemSuccessResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+  /{community}/projects/{projectId}/workflows/{workflowId}:
+    get:
+      tags:
+        - Workflows                
+      summary: "Get a workflow definition *"
+      description: "Returns a single workflow definition"
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "projectId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the project containing the workflow definition"
+      - name: "workflowId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the workflow definition"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/getWorkflowResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        404:
+          description: "Workflow definition not found"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+    put:
+      tags:
+        - Workflows                
+      summary: "Update a workflow definition *"
+      description: "Updates an existing workflow definition. Note that the whole workflow\
+        \ definition must be passed in the body of the request, not just the changes."
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "projectId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the project containing the workflow definition"
+      - name: "workflowId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the workflow definition"
+      - name: "workflowDefinition"
+        in: "body"
+        schema:
+          $ref: "#/definitions/workflowDefinitionSend"
+        description: "Updated version of the workflow definition"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/successResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        404:
+          description: "Workflow definition not found"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+    delete:
+      tags:
+        - Workflows                
+      summary: "Delete a workflow definition *"
+      description: "Deletes a  workflow definition from a project. Note - this is\
+        \ not required for phase 1 but will be useful for testing purposes."
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "projectId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the project containing the workflow definition"
+      - name: "workflowId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the workflow definition to be deleted"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/successResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        404:
+          description: "Workflow definition not found"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+  /{community}/projects/{projectId}/assets/{assetId}/workflows:
+    get:
+      tags:
+        - Workflows                
+      summary: "List or search for workflow definitions for an asset *"
+      description: "Returns a list of workflow definitions for an asset. Note that\
+        \ in phase 1 only one workflow definition is allowed per asset, but this might\
+        \ change in the furture."
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "projectId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the project whose workflow definitions should be returned"
+      - name: "assetId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the asset to which the workflow definitions should be\
+          \ returned"
+      - name: "page"
+        in: "query"
+        required: false
+        type: "number"
+        description: "Number of the results page to return - default = 1"
+        default: 1
+      - name: "size"
+        in: "query"
+        required: false
+        type: "number"
+        description: "Number of items per page - default = 10"
+        default: 10
+      - name: "order"
+        in: "query"
+        required: false
+        type: "string"
+        description: "Comma separated list of fields to order by. Append field name\
+          \ with \":desc\" to order that field descending."
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/listWorkflowSummariesResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+    post:
+      tags:
+        - Workflows                
+      summary: "Associate a workflow definition with an asset *"
+      description: "Add an existing workflow definition to an asset"
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "projectId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the project whose workflow definitions should be returned"
+      - name: "assetId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the asset to which the workflow definitions should be\
+          \ returned"
+      - name: "workflowId"
+        in: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/idObject"
+        description: "ID of the workflow definition to associate with the asset"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/newItemSuccessResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+  /{community}/projects/{projectId}/assets/{assetId}/workflows/{workflowId}:
+    delete:
+      tags:
+        - Workflows                
+      summary: "Disassociate a workflow definition from an asset *"
+      description: "Delete a workflow association from an asset in a project"
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "projectId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the project containing the asset"
+      - name: "assetId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the asset from which the workflow should be removed"
+      - name: "workflowId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the workflow definition to remove from the asset"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/successResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        404:
+          description: "Workflow definition not found for asset"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+  /{community}/projects/{projectId}/assets/{assetId}/reviews:
+    get:
+      tags:
+        - Reviews                
+      summary: "List review instances for an asset"
+      description: "Returns a list of review processes (process instances) for an\
+        \ asset"
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "projectId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the project containing the asset"
+      - name: "assetId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the asset to which the reviews relate"
+      - name: "page"
+        in: "query"
+        required: false
+        type: "number"
+        description: "Number of the results page to return - default = 1"
+        default: 1
+      - name: "size"
+        in: "query"
+        required: false
+        type: "number"
+        description: "Number of items per page - default = 10"
+        default: 10
+      - name: "order"
+        in: "query"
+        required: false
+        type: "string"
+        description: "Comma separated list of fields to order by. Append field name\
+          \ with \":desc\" to order that field descending."
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/listReviewsResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+  /{community}/reviews/{reviewId}:
+    put:
+      tags:
+        - Reviews                    
+      summary: "Update the status of a review"
+      description: "Updates the status of an existing review. Note - This is likely\
+        \ to be called as a result of a workflow callback, not the user interface."
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "reviewId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of an instance of a review"
+      - name: "newStatus"
+        in: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/reviewInstanceSend"
+        description: "Review instance object containing the new status"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/successResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        404:
+          description: "Review not found"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+    delete:
+      tags:
+        - Reviews                    
+      summary: "Delete a review process instance"
+      description: "Cancels (deletes) a review. Note - not required for phase 1 but\
+        \ useful for testing."
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "reviewId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of an instance of a review"
+      responses:
+        200:
+          description: "Success. Review instance was deleted."
+          schema:
+            $ref: "#/definitions/successResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        404:
+          description: "Review not found"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+  /{community}/tasks:
+    get:
+      tags:
+        - Tasks                    
+      summary: "List or search for tasks for current user"
+      description: "Retrieves the tasks available to the user making the request"
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "page"
+        in: "query"
+        required: false
+        type: "number"
+        description: "Number of the results page to return - default = 1"
+        default: 1
+      - name: "size"
+        in: "query"
+        required: false
+        type: "number"
+        description: "Number of items per page - default = 10"
+        default: 10
+      - name: "order"
+        in: "query"
+        required: false
+        type: "string"
+        description: "Comma separated list of fields to order by. Append field name\
+          \ with \":desc\" to order that field descending."
+      - name: "query"
+        in: "query"
+        required: false
+        type: "string"
+        description: "Optional query to select a subset of objects to return. Objects\
+          \ will be returned if their name or description contains the specified string."
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/listTasksResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+  /{community}/tasks/{taskId}:
+    get:
+      tags:
+        - Tasks                        
+      summary: "Get task details"
+      description: "Retrieves the details of a specific task"
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "taskId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Id of the task to retrieve"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/getTaskResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        404:
+          description: "Task not found"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+    put:
+      tags:
+        - Tasks                        
+      summary: "Update a task"
+      description: "Updates a task's status and/or owner"
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "taskId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Id of the task to retrieve"
+      - name: "updatedTask"
+        in: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/taskDetailsSend"
+        description: "Task details object containing the new status and/or owner"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/successResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        404:
+          description: "Task not found"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+  /{community}/projects/{projectId}/history:
+    get:
+      tags:
+        - History                        
+      summary: "List history for a project *"
+      description: "Returns a list of history for all assets in a project and for\
+        \ the project itself"
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "projectId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the project whose history will be returned"
+      - name: "page"
+        in: "query"
+        required: false
+        type: "number"
+        description: "Number of the results page to return - default = 1"
+        default: 1
+      - name: "size"
+        in: "query"
+        required: false
+        type: "number"
+        description: "Number of items per page - default = 10"
+        default: 10
+      - name: "order"
+        in: "query"
+        required: false
+        type: "string"
+        description: "Comma separated list of fields to order by. Append field name\
+          \ with \":desc\" to order that field descending."
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/listHistoryResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+  /{community}/projects/{projectId}/assets/{assetId}/history:
+    get:
+      tags:
+        - History                            
+      summary: "List history for an asset *"
+      description: "Returns a list of history entries for a specified asset in a project"
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      - name: "projectId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the project containing the asset"
+      - name: "assetId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the asset whose history should be returned"
+      - name: "page"
+        in: "query"
+        required: false
+        type: "number"
+        description: "Number of the results page to return - default = 1"
+        default: 1
+      - name: "size"
+        in: "query"
+        required: false
+        type: "number"
+        description: "Number of items per page - default = 10"
+        default: 10
+      - name: "order"
+        in: "query"
+        required: false
+        type: "string"
+        description: "Comma separated list of fields to order by. Append field name\
+          \ with \":desc\" to order that field descending."
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/listHistoryResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+  /{community}/comparison-profiles:
+    get:
+      tags:
+        - Comparisons
+      summary: "List available comparison profiles"
+      description: "Returns a list of the comparison profiles that have been defined.\
+        \  The list will be empty if there is no comparison engine configured or if\
+        \ no profiles have been defined."
+      parameters:
+      - name: "community"
+        in: "path"
+        required: true
+        type: "string"
+        description: "Name of the community"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/listComparisonProfileResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+  /external-projects/{externalProjectId}/files:
+    post:
+      tags:
+        - Files    
+      summary: "Upload file to server *"
+      description: "Uploads a file to the server (e.g. a PDF) and returns a URL for\
+        \ the uploaded file"
+      consumes:
+      - "multipart/form-data"
+      parameters:
+      - name: "externalProjectId"
+        in: "path"
+        description: "External identifier for the project to which the file belongs"
+        required: true
+        type: "string"
+      - name: "fileName"
+        in: "formData"
+        description: "Name of the file being uploaded"
+        required: true
+        type: "string"
+      - name: "file"
+        in: "formData"
+        description: "The contents of the file to be uploaded"
+        required: true
+        type: "file"
+      - name: "submitter"
+        in: "formData"
+        description: "Name of the person on whose behalf the file is being uploaded"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/uploadFileSuccessResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+  /external-projects/{externalProjectId}/files/{fileId}:
+    get:
+      tags:
+        - Files        
+      summary: "Download a file *"
+      description: "Returns a previously uploaded file"
+      produces:
+      - "application/pdf"
+      parameters:
+      - name: "externalProjectId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "External ID of the project whose files will be returned"
+      - name: "fileId"
+        in: "path"
+        required: true
+        type: "string"
+        description: "ID of the file to be downloaded"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/successResponse"
+        404:
+          description: "File not found"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+  /external-projects/{externalProjectId}/assets:
+    get:
+      tags:
+        - Assets        
+      summary: "Get assets in project (using external ID) *"
+      description: "Returns a list of assets within the specified project, along with\
+        \ their status"
+      parameters:
+      - name: "externalProjectId"
+        in: "path"
+        description: "External identifier for the project to which the file belongs"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/listProjectAssetsResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+  /external-projects/{externalProjectId}/assets/{externalAssetId}/history:
+    get:
+      tags:
+        - History
+      summary: "Get history for an asset *"
+      description: "Gets the history for a specific asset in a project, using external\
+        \ identifiers"
+      parameters:
+      - name: "externalProjectId"
+        in: "path"
+        description: "External identifier for the project to which the asset belongs"
+        required: true
+        type: "string"
+      - name: "externalAssetId"
+        in: "path"
+        description: "External identifier for the asset"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/nonpagedHistoryResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+  /external-projects/{externalProjectId}/reviews:
+    post:
+      tags:
+        - Reviews        
+      summary: "Create a review (using external IDs) *"
+      description: "Create a new review for an asset, based on the external ID of\
+        \ the project and asset"
+      parameters:
+      - name: "externalProjectId"
+        in: "path"
+        description: "External identifier for the project to which the file belongs"
+        required: true
+        type: "string"
+      - name: "reviewData"
+        in: "body"
+        description: "Object containing the external project ID, external asset ID\
+          \ and one or two preview documents"
+        required: true
+        schema:
+          $ref: "#/definitions/reviewSubmission"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/newItemSuccessResponse"
+        400:
+          description: "Invalid data in request"
+          schema:
+            $ref: "#/definitions/baseFail"
+        404:
+          description: "The server was not able to resovle one of the entities required to create \
+          \ a review: Community, Asset, File or Workflow. Messages will contain additional information."
+          schema:
+            $ref: "#/definitions/baseFail"
+        409:
+          description: "A review is already in progress for this asset"
+          schema:
+            $ref: "#/definitions/baseFail"                        
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+  /reviews/{reviewId}/callback:
+    post:
+      tags:
+        - Callbacks        
+      summary: "Notification of a change in a workflow"
+      description: "Only  called by the workflow engine (Activiti)"
+      parameters:
+      - name: "reviewId"
+        in: "path"
+        description: "ID of the review with which the workflow is associated"
+        required: true
+        type: "string"
+      - name: "callbackData"
+        in: "body"
+        description: "Callback information from the workflow engine"
+        required: true
+        schema:
+          $ref: "#/definitions/workflowCallback"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/successResponse"
+        400:
+          description: "The workflow ID is not recognised"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"
+  /reviews/{reviewId}/notification:
+    post:
+      tags:
+        - Callbacks        
+      summary: "Notification callback interface for workflow"
+      description: "Only called by the workflow engine (Activiti)"
+      parameters:
+      - name: "reviewId"
+        in: "path"
+        description: "ID of the review with which the workflow is associated"
+        required: true
+        type: "string"
+      - name: "notificationData"
+        in: "body"
+        description: "Notification information from the workflow engine"
+        required: true
+        schema:
+          $ref: "#/definitions/workflowNotification"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/successResponse"
+        400:
+          description: "The workflow ID is not recognised"
+          schema:
+            $ref: "#/definitions/baseFail"
+        500:
+          description: "Internal error"
+          schema:
+            $ref: "#/definitions/baseError"                      
+definitions:
+  pageMetadata:
+    type: "object"
+    properties:
+      pageSize:
+        type: "integer"
+      pageNumber:
+        type: "integer"
+      returnedRecords:
+        type: "integer"
+      totalRecords:
+        type: "integer"
+  projectStatusEnum:
+    type: "string"
+    enum:
+    - "created"
+    - "running"
+    - "approved"
+    - "merging"
+    - "merged"
+    - "closed"
+  reviewStatusEnum:
+    type: "string"
+    enum:
+    - "active"
+    - "complete"
+  taskStatusEnum:
+    type: "string"
+    enum:
+    - "Statuses to be confirmed!"
+  taskActionEnum:
+    type: "string"
+    enum:
+    - "claim"
+    - "approve"
+    - "reject"
+    - "delegate"
+    - "release"
+  assetStatusEnum:
+    type: "string"
+    enum:
+    - "unmodified"
+    - "modified"
+    - "submitted"
+    - "rejected"
+    - "approved"
+    - "merged"
+  assetTypeEnum:
+    type: "string"
+    enum:
+    - "publication"
+  assetOriginEnum:
+    type: "string"
+    enum:
+    - "new"
+    - "existing"
+  actionTypeEnum:
+    type: "string"
+    enum:
+    - "added"
+    - "created"
+    - "removed"
+    - "submitted"
+    - "approved"
+    - "rejected"
+    - "merged"
+    - "closed"
+    - "claimed"
+    - "released"
+    - "delegated"
+    - "updated"
+  stepTypeEnum:
+    type: "string"
+    enum:
+    - "review"
+  approvalTypeEnum:
+    type: "string"
+    enum:
+    - "ANYONE"
+    - "EVERYONE"
+  entityTypeEnum:
+    type: "string"
+    enum:
+    - "project"
+    - "asset"
+    - "workflowDefinition"
+    - "workflowAssociation"
+    - "workflowInstance"
+    - "task"        
+  idObject:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+  project:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "The internal ID of the project"
+      name:
+        type: "string"
+        description: "The name of the project"
+      description:
+        type: "string"
+        description: "Description of the project"
+      externalId:
+        type: "string"
+        description: "ID of the corresponding project in Designer"
+      referenceCode:
+        type: "string"
+        description: "A reference name, code, etc., that is meaningful to the organisation.\
+          \ This might for example match a project code in another system used by\
+          \ a project manager."
+      status:
+        type: "schema"
+        $ref: "#/definitions/projectStatusEnum"
+        description: "Status of the project"
+      dueDate:
+        type: "string"
+        format: "date-time"
+        description: "Due date for the project - for reference only"
+      numberOfAssets:
+        type: "integer"
+        description: "Number of assets that are currently associated with the project"
+      repositoryName:
+        type: "string"
+        description: "Name of the Designer repository referenced by this project"      
+      created:
+        type: "string"
+        format: "date-time"
+        description: "Date and time when the project was created"
+      updated:
+        type: "string"
+        format: "date-time"
+        description: "Date and time when the project was last updated"
+      createdBy:
+        type: "string"
+        description: "Name of the user who created the project"
+      updatedBy:
+        type: "string"
+        description: "Name of the user who last chnaged the project"
+  projectCreate:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        description: "The name of the project"
+      description:
+        type: "string"
+        description: "Description of the project"
+      referenceCode:
+        type: "string"
+        description: "A reference name, code, etc., that is meaningful to the organisation.\
+          \ This might for example match a project code in another system used by\
+          \ a project manager."
+      dueDate:
+        type: "string"
+        format: "date-time"
+        description: "Due date for the project - for reference only"
+  projectUpdate:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        description: "The name of the project"
+      description:
+        type: "string"
+        description: "Description of the project"
+      referenceCode:
+        type: "string"
+        description: "A reference name, code, etc., that is meaningful to the organisation.\
+          \ This might for example match a project code in another system used by\
+          \ a project manager."
+      dueDate:
+        type: "string"
+        format: "date-time"
+        description: "Due date for the project - for reference only"
+      status:
+        type: "schema"
+        $ref: "#/definitions/projectStatusEnum"
+        description: "Status of the project. A project with status 'merged' can be closed be \
+        \ setting this property to 'closed'."        
+  user:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      displayName:
+        type: "string"
+  userSend:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+  assetBase:
+    type: "object"
+    properties:
+      externalId:
+        type: "string"
+        description: "ID of the asset in Designer"
+      type:
+        type: "schema"
+        $ref: "#/definitions/assetTypeEnum"
+        description: "Type of asset, such as publication"
+      name:
+        type: "string"
+        description: "Name of the asset (does not include the location / folder)"
+      location:
+        type: "string"
+        description: "Full path of the folder that contains the asset"        
+      description:
+        type: "string"
+        description: "Description of the asset"
+  designerAsset:
+    allOf:
+    - $ref: "#/definitions/assetBase"
+    - type: "object"
+      properties:
+        inProject: 
+          type: "boolean"
+          description: "Indicates whether this asset has already been added to the specified project"       
+        updated:
+          type: "string"
+          format: "date-time"
+          description: "Timestamp for the most recent update to this asset"
+        updatedBy:
+          type: "string"
+          description: "Name of the user who most recently updated the asset"                  
+  projectAsset:
+    allOf:
+    - $ref: "#/definitions/assetBase"
+    - type: "object"
+      properties:
+        id:
+          type: "string"
+          description: "ID of the asset in the ACM repository (not the Designer Asset\
+            \ ID)"
+        projectId:
+          type: "string"
+          description: "ID Of the project that was queried for its assets"
+        status:
+          type: "schema"
+          $ref: "#/definitions/assetStatusEnum"
+          description: "Status of the asset within the project"
+        origin:
+          type: "schema"
+          $ref: "#/definitions/assetOriginEnum"
+          description: "Indicates whether the asset was created for or modified by\
+            \ this project"
+        numberOfProjects:
+          type: "integer"
+          description: "NUmber of ACM projects to which the asset is associated"
+        numberOfWorkflows:
+          type: "integer"
+          description: "Number of workflow definitions that are associated with the\
+            \ asset in the scope of this project"
+        associatedWorkflowName:
+          type: "string"
+          description: "Name of the workflow associated with the asset, if any"
+        added:
+          type: "string"
+          format: "date-time"
+        addedBy:
+          type: "string"
+        type:
+          type: "schema"
+          $ref: "#/definitions/assetTypeEnum"
+          description: "Type of asset, such as publication"
+        updated:
+          type: "string"
+          format: "date-time"
+          description: "Timestamp for the most recent update to this asset"
+        updatedBy:
+          type: "string"
+          description: "Name of the user who most recently updated the asset"                            
+  projectAssetSend:
+    allOf:
+    - $ref: "#/definitions/assetBase"
+  folderContents:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        description: "Name of the folder (Note: NOT the entire path of the folder)"
+      assets:
+        type: "array"
+        items:
+          $ref: "#/definitions/designerAsset"
+        description: "Collection of assets within the folder"
+      folders:
+        type: "array"
+        items:
+          $ref: "#/definitions/folderContents"
+        description: "Collection of sub-folders within the folder"
+  workflowStep:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "ID of the workflow step"
+      name:
+        type: "string"
+      description:
+        type: "string"
+      type:
+        type: "schema"
+        $ref: "#/definitions/stepTypeEnum"
+      approvalMode:
+        type: "schema"
+        $ref: "#/definitions/approvalTypeEnum"
+      groupApprovalMode:
+        type: "schema"
+        $ref: "#/definitions/approvalTypeEnum"
+      reviewers:
+        type: "array"
+        items:
+          $ref: "#/definitions/user"
+      returnToStep:
+        type: "string"
+  workflowStepSend:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "ID of the workflow step"
+      name:
+        type: "string"
+      description:
+        type: "string"
+      type:
+        type: "schema"
+        $ref: "#/definitions/stepTypeEnum"
+      approvalMode:
+        type: "schema"
+        $ref: "#/definitions/approvalTypeEnum"
+      groupApprovalMode:
+        type: "schema"
+        $ref: "#/definitions/approvalTypeEnum"
+      reviewers:
+        type: "array"
+        items:
+          $ref: "#/definitions/userSend"
+      returnToStep:
+        type: "string"
+  workflowDefinition:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "ID of the workflow definition"
+      name:
+        type: "string"
+      description:
+        type: "string"
+      steps:
+        type: "array"
+        items:
+          $ref: "#/definitions/workflowStep"
+      comparisonProfileId:
+        type: "string"
+        description: "Optional ID of a comparison profile to be used with this workflow"
+  workflowDefinitionSend:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "ID of the workflow definition"
+      name:
+        type: "string"
+      description:
+        type: "string"
+      steps:
+        type: "array"
+        items:
+          $ref: "#/definitions/workflowStepSend"
+      comparisonProfileId:
+        type: "string"
+        description: "Optional ID of a comparison profile to be used with this workflow"
+  workflowSummary:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "ID of the workflow definition"
+      name:
+        type: "string"
+      description:
+        type: "string"
+  reviewInstance:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "ID of the review process instance"
+      projectId:
+        type: "string"
+        description: "ID of the project in which the asset is being reviewed"
+      assetId:
+        type: "string"
+        description: "ID of the asset to whcih the review is associated"
+      status:
+        type: "schema"
+        $ref: "#/definitions/reviewStatusEnum"
+        description: "Status of the review"
+      previewBefore:
+        type: "string"
+        description: "URL of the file containing the preview created prior to the\
+          \ asset being modified. For a new asset this field is empty."
+      previewAfter:
+        type: "string"
+        description: "URL of the file containing the preview created after the asset\
+          \ has been modified. If the asset has not been changed, this field is empty."
+      previewDiff:
+        type: "string"
+        description: "URL of the file containing the comparison of the before and\
+          \ after previews. This field is only populated if a comparison engine is\
+          \ enabled in the system."
+      workflowInstanceID:
+        type: "string"
+        description: "ID of the workflow instance associated with this review."
+  reviewInstanceSend:
+    type: "object"
+    properties:
+      status:
+        type: "schema"
+        $ref: "#/definitions/reviewStatusEnum"
+        description: "Status of the review"
+      previewBefore:
+        type: "string"
+        description: "URL of the file containing the preview created prior to the\
+          \ asset being modified. For a new asset this field is empty."
+      previewAfter:
+        type: "string"
+        description: "URL of the file containing the preview created after the asset\
+          \ has been modified. If the asset has not been changed, this field is empty."
+      previewDiff:
+        type: "string"
+        description: "URL of the file containing the comparison of the before and\
+          \ after previews. This field is only populated if a comparison engine is\
+          \ enabled in the system."
+      workflowInstanceID:
+        type: "string"
+        description: "ID of the workflow instance associated with this review."
+  taskSummary:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+      name:
+        type: "string"
+      description:
+        type: "string"
+      community:
+        type: "string"
+      status:
+        type: "schema"
+        $ref: "#/definitions/taskStatusEnum"
+      actualOwner:
+        type: "string"
+      instanceId:
+        type: "string"
+      processSubmitter:
+        type: "string"
+      type:
+        type: "schema"
+        $ref: "#/definitions/stepTypeEnum"
+      isActionableByYou:
+        type: "string"
+      uriToGetTaskDetails:
+        type: "string"
+  taskDetails:
+    allOf:
+    - $ref: "#/definitions/taskSummary"
+    - type: "object"
+      properties:
+        processDefinitionKey:
+          type: "string"
+        onBehalfOfGroups:
+          type: "array"
+          items:
+            type: "string"
+        potentialGroups:
+          type: "array"
+          items:
+            type: "string"
+        potentialUsers:
+          type: "array"
+          items:
+            type: "string"
+        previewBefore:
+          type: "string"
+          description: "URL of the file containing the preview created prior to the\
+            \ asset being modified. For a new asset this field is empty."
+        previewAfter:
+          type: "string"
+          description: "URL of the file containing the preview created after the asset\
+            \ has been modified. If the asset has not been changed, this field is\
+            \ empty."
+        previewDiff:
+          type: "string"
+          description: "URL of the file containing the comparison of the before and\
+            \ after previews. This field is only populated if a comparison engine\
+            \ is enabled in the system."
+  taskDetailsSend:
+    type: "object"
+    properties:
+      action:
+        type: "schema"
+        $ref: "#/definitions/taskActionEnum"
+        description: "Name of the action being carried out on the task"
+      assignee:
+        type: "string"
+        description: "Name of the user to whom the task will be assigned"
+      notes:
+        type: "string"
+        description: "Notes/comments from the user who updated the task"
+  historyEntry:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "Unique ID for this history entry"
+      assetId:
+        type: "string"
+        description: "ID of the asset (within a project) that the history relates\
+          \ to"
+      projectId:
+        type: "string"
+        description: "ID of the project to which the history relates"
+      assetName:
+        type: "string"
+        description: "Name of the asset (within a project) that the history relates\
+          \ to"
+      projectName:
+        type: "string"
+        description: "Name of the project to which the history relates"
+      timestamp:
+        type: "string"
+        format: "date-time"
+        description: "When the history entry was created"
+      actionType:
+        type: "schema"
+        $ref: "#/definitions/actionTypeEnum"
+        description: "Type of action that is recorded in this history item"
+      status:
+        type: "schema"
+        $ref: "#/definitions/assetStatusEnum"
+        description: "Status of the asset in the project when the history item was\
+          \ created"
+      notes:
+        type: "string"
+        description: "Any notes or comments related to the history item"
+      user:
+        type: "string"
+        description: "Name of the user who took an action that resulted in this history"
+      reviewID:
+        type: "string"
+        description: "If the history item is related to a review, this field contains\
+          \ the ID of the review"
+      entityType:
+        type: "schema"
+        $ref: "#/definitions/entityTypeEnum"
+        description: "Type of entity to which the history is related"
+      workflowId:
+        type: "string"
+        description: "Identifier of the Workflow definition to which the history is related"        
+      workflowName:
+        type: "string"
+        description: "Name of the workflow definition to which the instanceis related"  
+      taskId:
+        type: "string"
+        description: "Identifier of the workflow task to which the history is related"        
+      taskName:
+        type: "string"
+        description: "Name of the workflow task to which the history is related"        
+      links:
+        type: "array"
+        items:
+          type: "string"
+        description: "Collection of links to items referred to by the history record, \
+          \ currrently used only for preview PDFs but may be expanded in the future. \
+          \ If only one link is present it represents the preview for a new publication.\
+          \ If two links are present they represent the previews of the original publication \
+          \ (first link) and the changed publication (second link). \
+          \ If three links are present the third link represents a comparison of the \
+          \ original and changed publication." 
+  reviewSubmission:
+    type: "object"
+    properties:
+      externalProjectId:
+        type: "string"
+        description: "ID of the external project (e.g. in Designer)"
+      externalAssetId:
+        type: "string"
+        description: "ID of the external asset (e.g. in Designer)"
+      previewBefore:
+        type: "string"
+        description: "URL of the file containing the preview created prior to the\
+          \ asset being modified. For a new asset this field should be empty."
+      previewAfter:
+        type: "string"
+        description: "URL of the file containing the preview created after the asset\
+          \ has been modified. If the asset has not been changed, this fiels should\
+          \ be empty."
+      submitter:
+        type: "string"
+        description: "Name of the person requesting the review"
+  comparisonProfile:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "ID of a comparison profile"
+      name:
+        type: "string"
+        description: "Name of the comparison profile"
+  workflowCallback:
+    type: "object"
+    properties:
+      workflowId: 
+        type: "string"
+        description: "ID of the workflow process making the callback"
+      externalReferenceId: 
+        type: "string"
+        description: "ID of the entity with which the workflow is associated"
+      externalReferenceType: 
+        type: "string"
+        description: "Type of entity with which the workflow is associated (PROJECT_ASSET)"
+      callbackType:
+        type: "string"
+        description: "APPROVED or RETURNED_TO_SUBMITTER"
+      communityId:
+        type: "string"
+        description: "ID (NOT name) of the community"
+  workflowNotification:
+    type: "object"
+    properties:
+      recipients: 
+        type: "array"
+        items:
+          type: string
+        description: "Collection of user names"
+      carbonCopy: 
+        type: "array"
+        items:
+          type: string
+        description: "Collection of user names"          
+      eventType:
+        type: "string"
+        description: "APPROVED or RETURNED_TO_SUBMITTER"
+      externalReferenceId: 
+        type: "string"
+        description: "ID of the entity with which the workflow is associated"
+      externalReferenceType: 
+        type: "string"
+        description: "Type of entity with which the workflow is associated (PROJECT_ASSET)"
+      bpmnTaskId: 
+        type: "string"
+        description: "ID of the task in Activiti"
+      submitter:
+        type: "string"
+        description: "Name of the user who submitted the workflow"
+  successResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum:
+        - "success"
+  newItemSuccessResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum:
+        - "success"
+      data:
+        type: "object"
+        properties:
+          id:
+            type: "string"
+  uploadFileSuccessResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum:
+        - "success"
+      data:
+        type: "object"
+        properties:
+          id:
+            type: "string"
+          url:
+            type: "string"
+  baseErrorMessageData:
+    type: "object"
+    properties:
+      messages:
+        type: "array"
+        items:
+          type: "string"
+  baseError:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum:
+        - "error"
+      data:
+        $ref: "#/definitions/baseErrorMessageData"
+  baseFail:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum:
+        - "fail"
+      data:
+        $ref: "#/definitions/baseErrorMessageData"
+  listProjectsResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum:
+        - "success"
+      data:
+        type: "object"
+        properties:
+          metadata:
+            type: "schema"
+            $ref: "#/definitions/pageMetadata"        
+          projects:
+            type: "array"
+            items:
+              $ref: "#/definitions/project"
+  projectResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum:
+        - "success"
+      data:
+        type: "schema"
+        $ref: "#/definitions/project"
+  getProjectAssetResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum:
+        - "success"
+      data:
+        type: "schema"
+        $ref: "#/definitions/projectAsset"
+  listProjectAssetsResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum:
+        - "success"
+      data:
+        type: "object"
+        properties:
+          metadata:
+            type: "schema"
+            $ref: "#/definitions/pageMetadata"        
+          assets:
+            type: "array"
+            items:
+              $ref: "#/definitions/projectAsset"
+  listAvailableAssetsResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum:
+        - "success"
+      data:
+        type: "schema"
+        $ref: "#/definitions/folderContents"
+  listWorkflowsResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum:
+        - "success"
+      data:
+        type: "object"
+        properties:
+          metadata:
+            type: "schema"
+            $ref: "#/definitions/pageMetadata"        
+          workflows:
+            type: "array"
+            items:
+              $ref: "#/definitions/workflowDefinition"
+  listWorkflowSummariesResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum:
+        - "success"
+      data:
+        type: "object"
+        properties:
+          metadata:
+            type: "schema"
+            $ref: "#/definitions/pageMetadata"        
+          workflows:
+            type: "array"
+            items:
+              $ref: "#/definitions/workflowSummary"
+  listTasksResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum:
+        - "success"
+      data:
+        type: "object"
+        properties:
+          metadata:
+            type: "schema"
+            $ref: "#/definitions/pageMetadata"        
+          tasks:
+            type: "array"
+            items:
+              $ref: "#/definitions/taskSummary"
+  getTaskResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum:
+        - "success"
+      data:
+        type: "schema"
+        $ref: "#/definitions/taskDetails"
+  getWorkflowResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum:
+        - "success"
+      data:
+        type: "schema"
+        $ref: "#/definitions/workflowDefinition"
+  listReviewsResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum:
+        - "success"
+      data:
+        properties:
+          metadata:
+            type: "schema"
+            $ref: "#/definitions/pageMetadata"        
+          reviews:
+            type: "array"
+            items:
+              $ref: "#/definitions/reviewInstance"
+  listHistoryResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum:
+        - "success"
+      data:
+        properties:
+          metadata:
+            type: "schema"
+            $ref: "#/definitions/pageMetadata"        
+          history:
+            type: "array"
+            items:
+              $ref: "#/definitions/historyEntry"
+  nonpagedHistoryResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum:
+        - "success"
+      data:
+        properties:
+          history:
+            type: "array"
+            items:
+              $ref: "#/definitions/historyEntry"
+  listComparisonProfileResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        enum:
+        - "success"
+      data:
+        properties:
+          comparisonProfiles:
+            type: "array"
+            items:
+              $ref: "#/definitions/comparisonProfile"
