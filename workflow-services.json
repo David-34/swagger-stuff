@@ -558,6 +558,46 @@
           }
         }
       }
+    },
+    "/{community}/resolution/operators" : {
+      "get" : {
+        "tags" : [ "Resolution" ],
+        "summary" : "List the operators compatible with a variable type",
+        "description" : "For a specified varible type, returns all list of the operators that are compatible with that type.",
+        "parameters" : [ {
+          "name" : "community",
+          "in" : "path",
+          "required" : true,
+          "type" : "string",
+          "description" : "Name of the community"
+        }, {
+          "name" : "type",
+          "in" : "query",
+          "required" : true,
+          "type" : "string",
+          "description" : "Type of operator for which to return a list of compatible operators. For list of valid types see definition of Condition within a Trigger."
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "schema" : {
+              "$ref" : "#/definitions/listOperatorsResponse"
+            }
+          },
+          "400" : {
+            "description" : "Invalid data in request",
+            "schema" : {
+              "$ref" : "#/definitions/baseFail"
+            }
+          },
+          "500" : {
+            "description" : "Internal error",
+            "schema" : {
+              "$ref" : "#/definitions/baseError"
+            }
+          }
+        }
+      }
     }
   },
   "definitions" : {
@@ -859,7 +899,7 @@
     },
     "operatorsEnum" : {
       "type" : "string",
-      "enum" : [ "equals", "less", "lessOrEquals", "greater", "greaterOrEquls", "between", "contains", "earlier", "earlierOrEquals", "later", "laterOrEquals" ]
+      "enum" : [ "equals", "notEquals", "less", "lessOrEquals", "greater", "greaterOrEquals", "between", "contains", "earlier", "earlierOrEquals", "later", "laterOrEquals" ]
     },
     "triggerTypeEnum" : {
       "type" : "string",
@@ -897,6 +937,39 @@
               "type" : "array",
               "items" : {
                 "$ref" : "#/definitions/variable"
+              }
+            }
+          }
+        }
+      }
+    },
+    "operator" : {
+      "properties" : {
+        "name" : {
+          "type" : "schema",
+          "$ref" : "#/definitions/operatorsEnum"
+        },
+        "cardinality" : {
+          "type" : "integer",
+          "description" : "Number of operand values required",
+          "default" : 1
+        }
+      }
+    },
+    "listOperatorsResponse" : {
+      "type" : "object",
+      "properties" : {
+        "status" : {
+          "type" : "string",
+          "enum" : [ "success" ]
+        },
+        "data" : {
+          "type" : "object",
+          "properties" : {
+            "operators" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/operator"
               }
             }
           }
