@@ -1125,6 +1125,23 @@
         }
       }
     },
+    "pageMetadataForTriggers" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/pageMetadata"
+      }, {
+        "type" : "object",
+        "properties" : {
+          "totalInvalidRecords" : {
+            "type" : "integer",
+            "description" : "Total number of triggers which are not in a valid state"
+          },
+          "totalBasicRecords" : {
+            "type" : "integer",
+            "description" : "Total number of 'basic' triggers - triggers upgraded from an earlier version that do not support conditions."
+          }
+        }
+      } ]
+    },
     "listTriggersResponse" : {
       "type" : "object",
       "properties" : {
@@ -1137,7 +1154,7 @@
           "properties" : {
             "metadata" : {
               "type" : "schema",
-              "$ref" : "#/definitions/pageMetadata"
+              "$ref" : "#/definitions/pageMetadataForTriggers"
             },
             "triggers" : {
               "type" : "array",
