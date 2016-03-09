@@ -1108,6 +1108,10 @@
           "isValid" : {
             "type" : "boolean",
             "description" : "Indicates whether the trigger is valid."
+          },
+          "isBasic" : {
+            "type" : "boolean",
+            "description" : "Indicates whether the trigger is a ''basic'' trigger, upgraded from an earlier version of the system and with limited capabilities."
           }
         }
       } ]
