@@ -458,11 +458,11 @@
           "type" : "string",
           "description" : "Name of the community"
         }, {
-          "name" : "template",
+          "name" : "externalReferenceId",
           "in" : "query",
           "required" : true,
           "type" : "string",
-          "description" : "ID of the template used to create the submitted document"
+          "description" : "ID of the template instance (document) being submitted"
         }, {
           "name" : "submitter",
           "in" : "query",
