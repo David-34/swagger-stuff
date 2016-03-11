@@ -473,7 +473,7 @@
           "name" : "ignorePercentages",
           "in" : "query",
           "required" : false,
-          "type" : "string",
+          "type" : "boolean",
           "default" : "false",
           "description" : "If 'true', percentages are ignored when evaluating triggers. Default is 'false'."
         } ],
@@ -674,6 +674,23 @@
           "properties" : {
             "id" : {
               "type" : "string"
+            }
+          }
+        }
+      }
+    },
+    "resolveTriggersResponse" : {
+      "type" : "object",
+      "properties" : {
+        "status" : {
+          "type" : "string",
+          "enum" : [ "success" ]
+        },
+        "data" : {
+          "type" : "object",
+          "properties" : {
+            "workflowStarted" : {
+              "type" : "boolean"
             }
           }
         }
