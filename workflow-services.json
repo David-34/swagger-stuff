@@ -481,7 +481,7 @@
           "200" : {
             "description" : "Success",
             "schema" : {
-              "$ref" : "#/definitions/successResponse"
+              "$ref" : "#/definitions/resolveTriggersResponse"
             }
           },
           "400" : {
