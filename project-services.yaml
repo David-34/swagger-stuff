@@ -541,7 +541,7 @@ paths:
       - name: "workflowDefinition"
         in: "body"
         schema:
-          $ref: "#/definitions/workflowDefinitionSend"
+          $ref: "#/definitions/workflowDefinitionPost"
         description: "Workflow definition to be added to the project"
       responses:
         200:
@@ -620,7 +620,7 @@ paths:
       - name: "workflowDefinition"
         in: "body"
         schema:
-          $ref: "#/definitions/workflowDefinitionSend"
+          $ref: "#/definitions/workflowDefinitionPut"
         description: "Updated version of the workflow definition"
       responses:
         200:
@@ -683,9 +683,9 @@ paths:
       tags:
         - Workflows                
       summary: "List or search for workflow definitions for an asset *"
-      description: "Returns a list of workflow definitions for an asset. Note that\
+      description: "Returns a list of workflow definition summaries for an asset. Note that\
         \ in phase 1 only one workflow definition is allowed per asset, but this might\
-        \ change in the furture."
+        \ change in the future."
       parameters:
       - name: "community"
         in: "path"
@@ -1526,6 +1526,8 @@ definitions:
     - "task"        
   idObject:
     type: "object"
+    required:
+      - id
     properties:
       id:
         type: "string"
@@ -1730,16 +1732,21 @@ definitions:
         items:
           $ref: "#/definitions/folderContents"
         description: "Collection of sub-folders within the folder"
-  workflowStep:
+  workflowStepPost:
     type: "object"
+    required:
+      - name
+      - type
+      - approvalMode
+      - groupApprovalMode
+      - reviewers
     properties:
-      id:
-        type: "string"
-        description: "ID of the workflow step"
       name:
         type: "string"
+        description: Name of the workflow step 
       description:
         type: "string"
+        description: Description of the workflow step
       type:
         type: "schema"
         $ref: "#/definitions/stepTypeEnum"
@@ -1751,79 +1758,97 @@ definitions:
         $ref: "#/definitions/approvalTypeEnum"
       reviewers:
         type: "array"
-        items:
-          $ref: "#/definitions/user"
-      returnToStep:
-        type: "string"
-  workflowStepSend:
-    type: "object"
-    properties:
-      id:
-        type: "string"
-        description: "ID of the workflow step"
-      name:
-        type: "string"
-      description:
-        type: "string"
-      type:
-        type: "schema"
-        $ref: "#/definitions/stepTypeEnum"
-      approvalMode:
-        type: "schema"
-        $ref: "#/definitions/approvalTypeEnum"
-      groupApprovalMode:
-        type: "schema"
-        $ref: "#/definitions/approvalTypeEnum"
-      reviewers:
-        type: "array"
+        description: 'Collection of reviewers (users and/or groups) for this step'
         items:
           $ref: "#/definitions/userSend"
       returnToStep:
         type: "string"
+        description: 'ID of the step to return to if this step is rejected. Default is -1 which means ''return to submitter''.'
+  workflowStepPut:
+    allOf:
+      - $ref: '#/definitions/workflowStepPost'
+      - type: object
+        required:
+          - id
+        properties:
+          id:
+            type: "string"
+            description: "ID of the workflow step"
+  workflowStep:
+    allOf:
+      - $ref: '#/definitions/workflowStepPut'
+      - type: "object"
+        required:
+          - reviewers
+        properties:
+          reviewers:
+            type: "array"
+            items:
+              $ref: "#/definitions/user"
+            description: Collection of reviewers (users and/or groups) for the step
+  workflowDefinitionPost:
+    type: "object"
+    required:
+      - name
+      - steps
+    properties:
+      name:
+        type: "string"
+        description: Name of the workflow definition
+      description:
+        type: "string"
+        description: Description of the workflow definition
+      steps:
+        type: "array"
+        items:
+          $ref: "#/definitions/workflowStepPost"
+        description: Collection of steps within the workflow definition           
+      comparisonProfileId:
+        type: "string"
+        description: "Optional ID of a comparison profile to be used with this workflow"
+  workflowDefinitionPut:
+    allOf: 
+      - $ref: '#/definitions/workflowDefinitionPost'
+      - type: "object"
+        required:
+          - id
+          - steps
+        properties:
+          id:
+            type: "string"
+            description: "ID of the workflow definition"
+          steps:
+            type: "array"
+            items:
+              $ref: "#/definitions/workflowStepPut"
+            description: Collection of steps within the workflow definition               
   workflowDefinition:
-    type: "object"
-    properties:
-      id:
-        type: "string"
-        description: "ID of the workflow definition"
-      name:
-        type: "string"
-      description:
-        type: "string"
-      steps:
-        type: "array"
-        items:
-          $ref: "#/definitions/workflowStep"
-      comparisonProfileId:
-        type: "string"
-        description: "Optional ID of a comparison profile to be used with this workflow"
-  workflowDefinitionSend:
-    type: "object"
-    properties:
-      id:
-        type: "string"
-        description: "ID of the workflow definition"
-      name:
-        type: "string"
-      description:
-        type: "string"
-      steps:
-        type: "array"
-        items:
-          $ref: "#/definitions/workflowStepSend"
-      comparisonProfileId:
-        type: "string"
-        description: "Optional ID of a comparison profile to be used with this workflow"
+    allOf:
+      - $ref: '#/definitions/workflowDefinitionPut'
+      - type: "object"
+        required:
+          - steps
+        properties:
+          steps:
+            type: "array"
+            items:
+              $ref: "#/definitions/workflowStep"
+            description: Collection of steps within the workflow definition 
   workflowSummary:
     type: "object"
+    required:
+      - id
+      - name
     properties:
       id:
         type: "string"
         description: "ID of the workflow definition"
       name:
         type: "string"
+        description: Name of the workflow definition
       description:
         type: "string"
+        description: Description of the workflow definition
   reviewInstance:
     type: "object"
     properties:
