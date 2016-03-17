@@ -246,22 +246,19 @@
           "in" : "query",
           "required" : false,
           "type" : "string",
-          "description" : "Specifies the order of the results. Must be one of [name, priority, workflowName, updated, isValid, isBasic] optionally appended with ':asc' or ':desc' ",
-          "default" : "name:asc"
+          "description" : "Specifies the order of the results. Must be one of [name, priority, workflowName, updated, isValid, isBasic] optionally appended with ':asc' or ':desc' "
         }, {
           "page" : "",
           "in" : "query",
           "required" : false,
           "type" : "integer",
-          "description" : "Page number for paged results",
-          "default" : 1
+          "description" : "Page number for paged results"
         }, {
           "size" : "",
           "in" : "query",
           "required" : false,
           "type" : "integer",
-          "description" : "Number of items per page for paged results",
-          "default" : 10
+          "description" : "Number of items per page for paged results"
         } ],
         "responses" : {
           "200" : {
