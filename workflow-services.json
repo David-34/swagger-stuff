@@ -242,23 +242,26 @@
           "type" : "string",
           "description" : "Optional. To retrieve a list of Workflow Triggers for a specific user or group, supply the principle name."
         }, {
-          "order" : "",
+          "name" : "order",
           "in" : "query",
           "required" : false,
           "type" : "string",
-          "description" : "Specifies the order of the results. Must be one of [name, priority, workflowName, updated, isValid, isBasic] optionally appended with ':asc' or ':desc' "
+          "description" : "Specifies the order of the results. Must be one of [name, priority, workflowName, updated, isValid, isBasic] optionally appended with ':asc' or ':desc' ",
+          "default" : "priority:asc"
         }, {
-          "page" : "",
+          "name" : "page",
           "in" : "query",
           "required" : false,
           "type" : "integer",
-          "description" : "Page number for paged results"
+          "description" : "Page number for paged results",
+          "default" : 1
         }, {
-          "size" : "",
+          "name" : "size",
           "in" : "query",
           "required" : false,
           "type" : "integer",
-          "description" : "Number of items per page for paged results"
+          "description" : "Number of items per page for paged results",
+          "default" : 10
         } ],
         "responses" : {
           "200" : {
