@@ -942,7 +942,11 @@
       "properties" : {
         "name" : {
           "type" : "string",
-          "description" : "Name of the variable"
+          "description" : "Short name of the variable"
+        },
+        "path" : {
+          "type" : "string",
+          "description" : "Full path and name, forming a unique ID for the variable"
         },
         "type" : {
           "type" : "schema",
