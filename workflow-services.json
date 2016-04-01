@@ -927,7 +927,7 @@
     },
     "variableTypesEnum" : {
       "type" : "string",
-      "enum" : [ "integer", "number", "string", "date", "time" ]
+      "enum" : [ "string", "integer", "number", "date", "time" ]
     },
     "operatorsEnum" : {
       "type" : "string",
