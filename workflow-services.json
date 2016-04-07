@@ -470,8 +470,8 @@
     "/{community}/resolution/triggers/folder/{folder}/has-invalid" : {
       "get" : {
         "tags" : [ "Resolution" ],
-        "summary" : "Does a folder hierarchy contain any invalid triggrs?",
-        "description" : "Returns a flag indicating whether any trigger associated with templates in this folder is invalid. Also takes into account invalid template triggers in subfolders.",
+        "summary" : "Does a folder hierarchy contain any invalid triggers?",
+        "description" : "Returns a flag indicating whether at least one trigger associated with templates in this folder or in its sub-folders is invalid.",
         "parameters" : [ {
           "name" : "community",
           "in" : "path",
@@ -1208,7 +1208,7 @@
     "invalidFlag" : {
       "type" : "object",
       "properties" : {
-        "containsInvalidTrigger" : {
+        "hasInvalidTriggers" : {
           "type" : "boolean"
         }
       }
