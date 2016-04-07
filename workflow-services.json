@@ -467,6 +467,46 @@
         }
       }
     },
+    "/{community}/resolution/triggers/folder/{folder}/has-invalid" : {
+      "get" : {
+        "tags" : [ "Resolution" ],
+        "summary" : "Does a folder hierarchy contain any invalid triggrs?",
+        "description" : "Returns a flag indicating whether any trigger associated with templates in this folder is invalid. Also takes into account invalid template triggers in subfolders.",
+        "parameters" : [ {
+          "name" : "community",
+          "in" : "path",
+          "required" : true,
+          "type" : "string",
+          "description" : "Name of the community"
+        }, {
+          "name" : "folder",
+          "in" : "path",
+          "required" : true,
+          "type" : "string",
+          "description" : "Path of the folder"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "schema" : {
+              "$ref" : "#/definitions/invalidFolderResponse"
+            }
+          },
+          "400" : {
+            "description" : "Invalid data in request",
+            "schema" : {
+              "$ref" : "#/definitions/baseFail"
+            }
+          },
+          "500" : {
+            "description" : "Internal error",
+            "schema" : {
+              "$ref" : "#/definitions/baseError"
+            }
+          }
+        }
+      }
+    },
     "/{community}/resolution/resolve-triggers" : {
       "get" : {
         "tags" : [ "Resolution" ],
@@ -1162,6 +1202,27 @@
         "data" : {
           "type" : "schema",
           "$ref" : "#/definitions/trigger"
+        }
+      }
+    },
+    "invalidFlag" : {
+      "type" : "object",
+      "properties" : {
+        "containsInvalidTrigger" : {
+          "type" : "boolean"
+        }
+      }
+    },
+    "invalidFolderResponse" : {
+      "type" : "object",
+      "properties" : {
+        "status" : {
+          "type" : "string",
+          "enum" : [ "success" ]
+        },
+        "data" : {
+          "type" : "schema",
+          "$ref" : "#/definitions/invalidFlag"
         }
       }
     },
