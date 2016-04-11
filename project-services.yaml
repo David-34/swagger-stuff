@@ -1834,6 +1834,16 @@ definitions:
             items:
               $ref: "#/definitions/workflowStep"
             description: Collection of steps within the workflow definition 
+  workflowDefinitionWithAssetCount:
+    allOf:
+      - $ref: '#/definitions/workflowDefinition'
+      - type: "object"
+        required:
+          - numberOfAssets
+        properties:
+          numberOfAssets:
+            type: integer
+            description: Number of assets associated with the workflow
   workflowSummary:
     type: "object"
     required:
@@ -2261,7 +2271,7 @@ definitions:
           workflows:
             type: "array"
             items:
-              $ref: "#/definitions/workflowDefinition"
+              $ref: "#/definitions/workflowDefinitionWithAssetCount"
   listWorkflowSummariesResponse:
     type: "object"
     properties:
@@ -2315,7 +2325,7 @@ definitions:
         - "success"
       data:
         type: "schema"
-        $ref: "#/definitions/workflowDefinition"
+        $ref: "#/definitions/workflowDefinitionWithAssetCount"
   listReviewsResponse:
     type: "object"
     properties:
