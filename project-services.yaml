@@ -2078,6 +2078,9 @@ definitions:
       submitter:
         type: "string"
         description: "Name of the person requesting the review"
+      name:
+        type: "string"
+        description: "Name of the review (optional)"
   comparisonProfile:
     type: "object"
     properties:
