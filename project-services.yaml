@@ -1188,7 +1188,8 @@ paths:
         description: "Name of the community"
       - name: "projectId"
         in: "path"
-        required: true        
+        type: "string"
+        required: true    
       responses:
         200:
           description: "Success"
