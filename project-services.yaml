@@ -1172,7 +1172,7 @@ paths:
           description: "Internal error"
           schema:
             $ref: "#/definitions/baseError"
-  /{community}/comparison-profiles:
+  /{community}/projects/{projectId}/comparisons/profiles:
     get:
       tags:
         - Comparisons
@@ -1186,6 +1186,9 @@ paths:
         required: true
         type: "string"
         description: "Name of the community"
+      - name: "projectId"
+        in: "path"
+        required: true        
       responses:
         200:
           description: "Success"
@@ -2084,9 +2087,6 @@ definitions:
   comparisonProfile:
     type: "object"
     properties:
-      id:
-        type: "string"
-        description: "ID of a comparison profile"
       name:
         type: "string"
         description: "Name of the comparison profile"
