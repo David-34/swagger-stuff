@@ -1190,6 +1190,7 @@ paths:
         in: "path"
         type: "string"
         required: true    
+        description: "ID of the project in which the comparison will be used"        
       responses:
         200:
           description: "Success"
