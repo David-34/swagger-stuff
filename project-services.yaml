@@ -1979,6 +1979,33 @@ definitions:
           description: "URL of the file containing the comparison of the before and\
             \ after previews. This field is only populated if a comparison engine\
             \ is enabled in the system."
+        submitter:
+          type: "string"
+          description: "ID of the user who submitted the review"
+        step:
+          type: "string"
+          description: "Name of the workflow step that created the task"
+        created:
+          type: "string"
+          description: "Timestamp of when the task was created"
+        externalReferenceId:
+          type: "string"
+          description: "ID of the external entity related to the task"
+        externalReferenceType:
+          type: "string"
+          descripton: "Type of the external entity related to the task"
+        externalReferenceName:
+          type: "string"
+          description: "Name of the external entity related to the task"
+        externalReferenceSubjectId:
+          type: "string"
+          description: "ID of the external entity used as the task's subject"
+        externalReferenceSubjectName:
+          type: "string"
+          description: "Name of the external entity used as the task's subject"
+        comparisonStatus:
+          type: "string"
+          description: "Status of the comparison generated for this review, if any" 
   taskDetailsSend:
     type: "object"
     properties:
