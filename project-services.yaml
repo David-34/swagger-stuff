@@ -1993,7 +1993,7 @@ definitions:
           description: "ID of the external entity related to the task"
         externalReferenceType:
           type: "string"
-          descripton: "Type of the external entity related to the task"
+          description: "Type of the external entity related to the task"
         externalReferenceName:
           type: "string"
           description: "Name of the external entity related to the task"
