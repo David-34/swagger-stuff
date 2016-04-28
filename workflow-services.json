@@ -589,8 +589,7 @@
           "in" : "query",
           "required" : false,
           "type" : "integer",
-          "description" : "Number of items per page - default = 10",
-          "default" : 10
+          "description" : "Number of items per page. If parameter not specified, all items are returned."
         } ],
         "responses" : {
           "200" : {
