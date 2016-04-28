@@ -1063,6 +1063,10 @@
           "$ref" : "#/definitions/variableTypesEnum",
           "description" : "Type of the variable"
         },
+        "variableDataPath" : {
+          "type" : "string",
+          "description" : "Fully qualified path of the variable in the template"
+        },
         "operator" : {
           "type" : "schema",
           "$ref" : "#/definitions/operatorsEnum",
