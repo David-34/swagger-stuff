@@ -1266,6 +1266,14 @@ paths:
         required: true
         type: "string"
         description: "ID of the file to be downloaded"
+      - name: embedded
+        in: "query"
+        required: false
+        type: "string"
+        description: "If not specified (default) the response headers include \
+          \ 'content-disposition: attachment'. If embedded parameter is supplied \
+          \ the content-disposition header is suppressed. Note: This parameter \
+          \ does not require a value - simply append '?embedded' to the url."
       responses:
         200:
           description: "Success"
