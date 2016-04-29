@@ -2014,6 +2014,9 @@ definitions:
         comparisonStatus:
           type: "string"
           description: "Status of the comparison generated for this review, if any" 
+        projectId: 
+          type: "string"
+          description: "ID of the project to which the external entity belongs"
   taskDetailsSend:
     type: "object"
     properties:
