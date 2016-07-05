@@ -770,11 +770,6 @@
           "description" : "Status of the task",
           "enum" : [ "pending", "inProgress" ]
         },
-        "actionStatus" : {
-          "type" : "string",
-          "description" : "Indication of what needs to happen next for this task",
-          "enum" : [ "awaitingUser", "awaitingGroup", "pending" ]
-        },
         "actualOwner" : {
           "type" : "string",
           "description" : "The current owner of the task"
@@ -901,7 +896,7 @@
         },
         "order" : {
           "type" : "string",
-          "description" : "Specifies the order of tthe results. Must be one of [name, submitter, subject, type, step, assignedTo, status, created] optionally appended with ':asc' or ':desc' ",
+          "description" : "Specifies the order of tthe results. Must be one of [externalReferenceName, submitter, externalReferenceSubjectName, type, step, actualOwner, status, created] optionally appended with ':asc' or ':desc' ",
           "default" : "name:asc"
         },
         "page" : {
